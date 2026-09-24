@@ -6,7 +6,8 @@ import {
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp
+  serverTimestamp,
+  updateDoc
 } from 'firebase/firestore'
 
 export function useTasks() {
@@ -53,6 +54,7 @@ export function useTasks() {
     unsubscribe()
   })
 
+  // Agregar una nueva tarea
   async function addTask(title, description, done) {
     const taskTitle = title.trim()
     const taskDescription = description.trim()
@@ -84,6 +86,7 @@ export function useTasks() {
     }
   }
 
+  // Eliminar una tarea
   async function deleteTask(id) {
     errorMessage.value = ''
 
@@ -98,11 +101,30 @@ export function useTasks() {
     }
   }
 
+  // Marcar una tarea como hecha
+  async function completeTask(id) {
+    errorMessage.value = ''
+
+    try {
+      const { $firestore } = useNuxtApp()
+
+      await updateDoc(
+        doc($firestore, 'tasks', id),
+        {
+          status: 'done'
+        }
+      )
+    } catch (error) {
+      errorMessage.value = readableError(error)
+    }
+  }
+
   return {
     tasks,
     saving,
     errorMessage,
     addTask,
-    deleteTask
+    deleteTask,
+    completeTask
   }
 }
