@@ -10,35 +10,44 @@ const emit = defineEmits(['complete', 'delete'])
 </script>
 
 <template>
-  <article class="task-item">
-    <div>
-      <h3>{{ task.title }}</h3>
+  <article
+    class="task-item"
+    :class="{ completed: task.status === 'done' }"
+  >
+    <div class="task-content">
+      <div class="task-header">
+        <h3>{{ task.title }}</h3>
 
-      <p v-if="task.description">
+        <span
+          class="status"
+          :class="task.status"
+        >
+          {{ task.status === 'pending' ? '● Pendiente' : '✓ Hecha' }}
+        </span>
+      </div>
+
+      <p v-if="task.description" class="description">
         {{ task.description }}
-      </p>
-
-      <p>
-        Estado:
-        <strong>
-          {{ task.status === 'pending' ? 'Pendiente' : 'Hecha' }}
-        </strong>
       </p>
     </div>
 
-    <button
-      v-if="task.status === 'pending'"
-      type="button"
-      @click="emit('complete', task.id)"
-    >
-      Marcar como hecha
-    </button>
+    <div class="task-actions">
+      <button
+        v-if="task.status === 'pending'"
+        class="complete-button"
+        type="button"
+        @click="emit('complete', task.id)"
+      >
+        ✓ Completar
+      </button>
 
-    <button
-      type="button"
-      @click="emit('delete', task.id)"
-    >
-      Eliminar
-    </button>
+      <button
+        class="delete-button"
+        type="button"
+        @click="emit('delete', task.id)"
+      >
+        🗑 Eliminar
+      </button>
+    </div>
   </article>
 </template>
