@@ -5,7 +5,9 @@ const title = ref('')
 const description = ref('')
 
 function submitTask() {
-  if (!title.value.trim()) return
+  if (!title.value.trim()) {
+    return
+  }
 
   emit('add', {
     title: title.value,
@@ -23,6 +25,7 @@ function submitTask() {
 
     <div>
       <label for="title">Título</label>
+
       <input
         id="title"
         v-model="title"
@@ -34,11 +37,12 @@ function submitTask() {
 
     <div>
       <label for="description">Descripción</label>
+
       <textarea
         id="description"
         v-model="description"
         placeholder="Descripción de la tarea"
-      />
+      ></textarea>
     </div>
 
     <button type="submit">

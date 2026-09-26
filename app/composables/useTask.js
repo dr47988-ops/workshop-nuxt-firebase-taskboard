@@ -12,11 +12,11 @@ import {
 
 export function useTasks() {
   const tasks = ref([])
-  const saving = ref(false)
   const errorMessage = ref('')
 
   let unsubscribe = () => {}
 
+  // Mostrar errores de Firestore de forma más clara
   function readableError(error) {
     if (error.code === 'permission-denied') {
       return 'Firestore bloqueó el acceso. Revisa las reglas de Firestore.'
@@ -25,6 +25,7 @@ export function useTasks() {
     return error.message
   }
 
+  // Escuchar las tareas en tiempo real
   onMounted(() => {
     const { $firestore } = useNuxtApp()
 
@@ -50,40 +51,32 @@ export function useTasks() {
     )
   })
 
+  // Detener la escucha cuando se cierre el componente
   onUnmounted(() => {
     unsubscribe()
   })
 
   // Agregar una nueva tarea
-  async function addTask(title, description, done) {
+  function addTask(title, description = '') {
     const taskTitle = title.trim()
     const taskDescription = description.trim()
 
-    if (!taskTitle || saving.value) {
-      done?.(false)
+    if (!taskTitle) {
       return
     }
 
-    saving.value = true
     errorMessage.value = ''
 
-    try {
-      const { $firestore } = useNuxtApp()
+    const { $firestore } = useNuxtApp()
 
-      await addDoc(collection($firestore, 'tasks'), {
-        title: taskTitle,
-        description: taskDescription,
-        status: 'pending',
-        createdAt: serverTimestamp()
-      })
-
-      done?.(true)
-    } catch (error) {
+    addDoc(collection($firestore, 'tasks'), {
+      title: taskTitle,
+      description: taskDescription,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    }).catch((error) => {
       errorMessage.value = readableError(error)
-      done?.(false)
-    } finally {
-      saving.value = false
-    }
+    })
   }
 
   // Eliminar una tarea
@@ -121,7 +114,6 @@ export function useTasks() {
 
   return {
     tasks,
-    saving,
     errorMessage,
     addTask,
     deleteTask,
